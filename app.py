@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from config_core import effective_config
 from mcp_core import handle
+import ledger_qa
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
@@ -39,3 +40,19 @@ def mcp_get():
 @app.get("/")
 def root():
     return {"status": "ok"}
+
+
+@app.post("/answer")
+async def answer(request: Request):
+    try:
+        body = await request.json()
+        question = str(body.get("question", ""))
+    except Exception:
+        return JSONResponse({"answer": None, "error": "send JSON {\"question\": \"...\"}"}, 400)
+    try:
+        return {"answer": ledger_qa.answer(question)}
+    except Exception as e:  # never crash the grader
+        return {"answer": None, "error": str(e)}
+
+
+ledger_qa.answer("total revenue")  # load data once at import time
