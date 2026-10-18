@@ -159,6 +159,8 @@ def plan(ledger, question):
                 rf"\b({'|'.join(DIMS)})s?\s+(?:with|that|had|has|having|generat|brought|made|earn)",
                 rf"\b(?:by|per|for each|each|every|across)\s+({'|'.join(DIMS)})s?\b",
                 rf"\b({'|'.join(DIMS)})s?\s+(?:ranked|breakdown|wise)\b",
+                rf"\b(?:{DESC}|{ASC}|leading|most valuable|most profitable|number one|#1)(?:[- ](?:selling|earning|grossing|performing|spending|revenue|valued?|sales|ordering|refunded|returned|volume))*[- ]+({'|'.join(DIMS)})s?\b",
+                rf"\b({'|'.join(DIMS)})s?\s+(?:leads?|leading|ranks? (?:first|highest|top))\b",
                 rf"\b(?:rank|ranking|breakdown of|split by|grouped by)\s+(?:the\s+)?({'|'.join(DIMS)})s?\b"):
         m = re.search(pat, q)
         if m:
@@ -205,7 +207,8 @@ def plan(ledger, question):
             p["metric"] = "count"
     if p["group"] and re.search(r"\b(most|fewest|highest|lowest) (orders|purchases|refunds|returns)\b|\bnumber of (orders|refunds)\b|\bmost frequent|\bmost orders\b", q):
         p["metric"] = "count"
-    if p["group"] and re.search(r"\b(most|fewest|largest|highest|lowest) (units|quantity)\b|\bbest[- ]selling\b|\bmost (sold|popular)\b|\bunits? sold\b|\bmost units\b", q):
+    if p["group"] and not re.search(r"\brevenue\b|\bsales value\b|\busd\b|\bdollars?\b|\$|\bearn|\bgross|\bspen[dt]\b|\bvalue\b", q) and \
+            re.search(r"\b(most|fewest|largest|highest|lowest) (units|quantity)\b|\bbest[- ]selling\b|\btop[- ]selling\b|\bmost (sold|popular)\b|\bunits? sold\b|\bmost units\b", q):
         p["metric"] = "units"
     if p["group"] and re.search(r"\bhighest[- ]grossing\b|\bbest[- ]performing\b|\btop earner\b|\btop[- ]selling\b", q) and p["metric"] != "units" and not re.search(r"\bunits?\b", q):
         p["metric"] = "revenue"
